@@ -54,14 +54,22 @@ public class PortfolioService {
         return toResponse(findById(id));
     }
 
-    // ── Modifier portfolio
     @Transactional
-    public PortfolioResponse updatePortfolio(Long id, PortfolioRequest request) {
+    public PortfolioResponse updatePortfolio(Long id, PortfolioUpdateRequest request) {
         Portfolio portfolio = findById(id);
         portfolio.setHeadline(request.getHeadline());
         portfolio.setLinkedinUrl(request.getLinkedinUrl());
         portfolio.setGithubUrl(request.getGithubUrl());
         portfolio.setLocation(request.getLocation());
+
+        if (request.getProjects() != null && !request.getProjects().isEmpty()) {
+            portfolio.getProjects().clear();
+            portfolioRepository.save(portfolio);
+            List<Project> newProjects = request.getProjects().stream()
+                    .map(p -> toProjectEntity(p, portfolio))
+                    .toList();
+            portfolio.getProjects().addAll(newProjects);
+        }
         return toResponse(portfolioRepository.save(portfolio));
     }
 

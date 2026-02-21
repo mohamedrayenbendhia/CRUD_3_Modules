@@ -2,6 +2,8 @@ package com.microservice.module_portfolio.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,5 +28,5 @@ public class Portfolio {
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Project> projects;
+    private List<Project> projects= new ArrayList<>();;
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,8 +45,8 @@ public class UserTestResultService {
                 .build();
         UserTestResult saved = userTestResultRepository.save(result);
 
-        // 4. Traiter les réponses
-        List<UserAnswer> answers = request.getAnswers().stream().map(a -> {
+        // 4. Traiter les réponses ✅ ArrayList
+        List<UserAnswer> answers = new ArrayList<>(request.getAnswers().stream().map(a -> {
             Question question = questionRepository.findById(a.getQuestionId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Question not found with id: " + a.getQuestionId()));
@@ -58,7 +59,7 @@ public class UserTestResultService {
                     .answer(a.getAnswer())
                     .isCorrect(correct)
                     .build();
-        }).toList();
+        }).toList());
 
         userAnswerRepository.saveAll(answers);
 

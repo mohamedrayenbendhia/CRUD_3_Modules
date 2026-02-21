@@ -1,7 +1,9 @@
 package com.microservice.module_competence.controllers;
 
 import com.microservice.module_competence.dto.*;
+import com.microservice.module_competence.enums.Level;
 import com.microservice.module_competence.services.SkillService;
+import com.microservice.module_competence.services.UserSkillService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -14,6 +16,7 @@ import java.util.List;
 public class AdminSkillController {
 
     private final SkillService skillService;
+    private final UserSkillService userSkillService;
 
     // POST /api/admin/skills
     @PostMapping
@@ -48,5 +51,20 @@ public class AdminSkillController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         skillService.deleteSkill(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // GET /api/admin/skills/user-skills/{userId}
+    @GetMapping("/user-skills/{userId}")
+    public ResponseEntity<List<UserSkillResponse>> getUserSkills(
+            @PathVariable Long userId) {
+        return ResponseEntity.ok(userSkillService.getSkillsByUser(userId));
+    }
+
+    // GET /api/admin/skills/user-skills/{userId}/level?level=EXPERT
+    @GetMapping("/user-skills/{userId}/level")
+    public ResponseEntity<List<UserSkillResponse>> getUserSkillsByLevel(
+            @PathVariable Long userId,
+            @RequestParam Level level) {
+        return ResponseEntity.ok(userSkillService.getSkillsByUserAndLevel(userId, level));
     }
 }

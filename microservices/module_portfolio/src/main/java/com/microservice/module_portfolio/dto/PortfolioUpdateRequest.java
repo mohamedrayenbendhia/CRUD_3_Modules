@@ -1,15 +1,12 @@
 package com.microservice.module_portfolio.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class PortfolioRequest {
-
-    @NotNull(message = "userId is required")
-    private Long userId;
+public class PortfolioUpdateRequest {
 
     @NotBlank(message = "Headline is required")
     private String headline;

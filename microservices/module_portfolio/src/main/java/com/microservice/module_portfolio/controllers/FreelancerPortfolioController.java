@@ -34,7 +34,7 @@ public class FreelancerPortfolioController {
     @PutMapping("/{id}")
     public ResponseEntity<PortfolioResponse> update(
             @PathVariable Long id,
-            @Valid @RequestBody PortfolioRequest request) {
+            @Valid @RequestBody PortfolioUpdateRequest request) {
         return ResponseEntity.ok(portfolioService.updatePortfolio(id, request));
     }
 

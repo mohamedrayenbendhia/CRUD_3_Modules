@@ -3,6 +3,7 @@ package com.microservice.module_certification.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,13 +25,14 @@ public class UserTestResult {
     private Test test;
 
     @Column(nullable = false)
-    private Long userSkillId;  // FK vers UserSkill (module-competence)
+    private Long userSkillId;
 
-    private int score;         // ex: 75 (%)
+    private int score;
     private boolean isPassed;
     private LocalDateTime passedAt;
 
     @OneToMany(mappedBy = "userTestResult", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<UserAnswer> answers;
+    @Builder.Default
+    private List<UserAnswer> answers = new ArrayList<>();  // ✅ ArrayList
 }
