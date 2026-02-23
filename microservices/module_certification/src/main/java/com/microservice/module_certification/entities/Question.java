@@ -2,7 +2,6 @@ package com.microservice.module_certification.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
 
 @Entity
 @Table(name = "questions")
@@ -24,8 +23,4 @@ public class Question {
 
     @Column(nullable = false)
     private String correctAnswer;
-
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL,
-            orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<UserAnswer> userAnswers;
 }

@@ -34,5 +34,5 @@ public class UserTestResult {
     @OneToMany(mappedBy = "userTestResult", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<UserAnswer> answers = new ArrayList<>();  // ✅ ArrayList
+    private List<UserAnswer> answers = new ArrayList<>();
 }

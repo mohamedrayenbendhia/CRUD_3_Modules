@@ -11,12 +11,9 @@ public class SubmitTestRequest {
     @NotNull(message = "userId is required")
     private Long userId;
 
-    @NotNull(message = "testId is required")
-    private Long testId;
-
     @NotNull(message = "userSkillId is required")
     private Long userSkillId;
 
     @NotNull(message = "answers is required")
-    private List<UserAnswerRequest> answers;
+    private List<String> answers;
 }

@@ -6,10 +6,10 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class TestResponse {
+public class TestPublicResponse {
     private Long id;
     private String title;
     private Long skillId;
     private int passingScore;
-    private List<QuestionResponse> questions;
+    private List<QuestionPublicResponse> questions;
 }

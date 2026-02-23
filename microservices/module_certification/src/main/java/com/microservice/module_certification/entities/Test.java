@@ -2,6 +2,7 @@ package com.microservice.module_certification.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,9 +23,10 @@ public class Test {
     private Long skillId;
 
     @Column(nullable = false)
-    private int passingScore;  // ← AJOUTÉ ex: 70 (%)
+    private int passingScore;
 
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Question> questions;
+    @Builder.Default
+    private List<Question> questions = new ArrayList<>();
 }

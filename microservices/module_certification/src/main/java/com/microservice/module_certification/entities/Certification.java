@@ -16,14 +16,18 @@ public class Certification {
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private Long userId;
 
     @Column(nullable = false)
-    private String organization;
+    private Long userSkillId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_id", nullable = false)
+    private Test test;
+
+    @Column(nullable = false)
+    private int score;
 
     private LocalDate date;
     private String certificateUrl;
-
-    @Column(nullable = false)
-    private Long userSkillId;  // FK vers UserSkill (module-competence)
 }

@@ -8,6 +8,5 @@ import java.util.List;
 @Repository
 public interface UserTestResultRepository extends JpaRepository<UserTestResult, Long> {
     List<UserTestResult> findByUserId(Long userId);
-    List<UserTestResult> findByUserSkillId(Long userSkillId);
     boolean existsByUserIdAndTestId(Long userId, Long testId);
 }

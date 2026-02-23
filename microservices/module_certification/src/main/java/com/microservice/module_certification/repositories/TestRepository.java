@@ -3,7 +3,6 @@ package com.microservice.module_certification.repositories;
 import com.microservice.module_certification.entities.Test;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
 import java.util.Optional;
 
 @Repository

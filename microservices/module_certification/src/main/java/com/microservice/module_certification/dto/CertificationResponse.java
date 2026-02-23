@@ -8,9 +8,10 @@ import java.time.LocalDate;
 @Builder
 public class CertificationResponse {
     private Long id;
-    private String title;
-    private String organization;
+    private Long userId;
+    private Long userSkillId;
+    private String testTitle;
+    private int score;
     private LocalDate date;
     private String certificateUrl;
-    private Long userSkillId;
 }

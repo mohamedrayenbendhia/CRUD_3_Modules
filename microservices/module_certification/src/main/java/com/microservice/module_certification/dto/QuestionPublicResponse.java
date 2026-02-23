@@ -5,8 +5,7 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class QuestionResponse {
+public class QuestionPublicResponse {
     private Long id;
     private String questionText;
-    private String correctAnswer;
 }

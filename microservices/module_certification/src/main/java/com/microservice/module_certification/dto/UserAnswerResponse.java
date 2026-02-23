@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 public class UserAnswerResponse {
     private Long id;
-    private Long questionId;
-    private String answer;
+    private String questionText;
+    private String yourAnswer;
     private boolean isCorrect;
 }

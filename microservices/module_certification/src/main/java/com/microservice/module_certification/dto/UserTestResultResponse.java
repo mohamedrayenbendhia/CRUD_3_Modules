@@ -11,9 +11,10 @@ public class UserTestResultResponse {
     private Long id;
     private Long userId;
     private Long testId;
+    private String testTitle;
     private Long userSkillId;
     private int score;
-    private int passingScore;   // ← AJOUTÉ pour afficher le seuil
+    private int passingScore;
     private boolean isPassed;
     private LocalDateTime passedAt;
     private List<UserAnswerResponse> answers;

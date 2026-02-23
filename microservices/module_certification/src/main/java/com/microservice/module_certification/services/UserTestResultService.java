@@ -20,23 +20,34 @@ public class UserTestResultService {
     private final UserAnswerRepository userAnswerRepository;
     private final QuestionRepository questionRepository;
     private final CertificationRepository certificationRepository;
-    private final TestService testService;
+    private final TestRepository testRepository;
 
-    // ── Soumettre un test (flux complet)
+    // ── Passer un test
     @Transactional
     public UserTestResultResponse submitTest(SubmitTestRequest request) {
 
-        // 1. Vérifier si le freelancer a déjà passé ce test
+        // 1. Trouver le test via userSkillId
+        Test test = testRepository.findBySkillId(request.getUserSkillId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No test found for this skill"));
+
+        // 2. Vérifier si déjà passé
         if (userTestResultRepository.existsByUserIdAndTestId(
-                request.getUserId(), request.getTestId())) {
+                request.getUserId(), test.getId())) {
             throw new DuplicateResourceException(
-                    "User already passed this test");
+                    "You already passed this test");
         }
 
-        // 2. Récupérer le test
-        Test test = testService.findById(request.getTestId());
+        // 3. Récupérer les questions
+        List<Question> questions = questionRepository.findByTestId(test.getId());
 
-        // 3. Créer le résultat
+        // 4. Vérifier nombre de réponses
+        if (request.getAnswers().size() != questions.size()) {
+            throw new ResourceNotFoundException(
+                    "Number of answers must be: " + questions.size());
+        }
+
+        // 5. Créer le résultat
         UserTestResult result = UserTestResult.builder()
                 .userId(request.getUserId())
                 .test(test)
@@ -45,48 +56,45 @@ public class UserTestResultService {
                 .build();
         UserTestResult saved = userTestResultRepository.save(result);
 
-        // 4. Traiter les réponses ✅ ArrayList
-        List<UserAnswer> answers = new ArrayList<>(request.getAnswers().stream().map(a -> {
-            Question question = questionRepository.findById(a.getQuestionId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Question not found with id: " + a.getQuestionId()));
+        // 6. Traiter les réponses
+        List<UserAnswer> answers = new ArrayList<>();
+        for (int i = 0; i < questions.size(); i++) {
+            Question question = questions.get(i);
+            String answer = request.getAnswers().get(i);
             boolean correct = question.getCorrectAnswer()
-                    .equalsIgnoreCase(a.getAnswer().trim());
-            return UserAnswer.builder()
+                    .equalsIgnoreCase(answer.trim());
+            answers.add(UserAnswer.builder()
                     .userId(request.getUserId())
                     .question(question)
                     .userTestResult(saved)
-                    .answer(a.getAnswer())
+                    .answer(answer)
                     .isCorrect(correct)
-                    .build();
-        }).toList());
-
+                    .build());
+        }
         userAnswerRepository.saveAll(answers);
 
-        // 5. Calculer le score
+        // 7. Calculer score
         long correctCount = answers.stream()
                 .filter(UserAnswer::isCorrect).count();
-        int score = answers.isEmpty() ? 0 :
-                (int) ((correctCount * 100) / answers.size());
-
-        // 6. Vérifier si passé selon le passingScore du test
+        int score = (int) ((correctCount * 100) / answers.size());
         boolean isPassed = score >= test.getPassingScore();
 
-        // 7. Mettre à jour le résultat
+        // 8. Mettre à jour résultat
         saved.setScore(score);
         saved.setPassed(isPassed);
         saved.setAnswers(answers);
         userTestResultRepository.save(saved);
 
-        // 8. ✅ Générer automatiquement la Certification si isPassed
+        // 9. Générer certification si isPassed
         if (isPassed) {
             Certification certification = Certification.builder()
-                    .title("Certified: " + test.getTitle())
-                    .organization("Smart Freelance Platform")
-                    .date(LocalDate.now())
-                    .certificateUrl(generateCertificateUrl(
-                            request.getUserId(), test.getId()))
+                    .userId(request.getUserId())
                     .userSkillId(request.getUserSkillId())
+                    .test(test)
+                    .score(score)
+                    .date(LocalDate.now())
+                    .certificateUrl("https://platform.com/certificates/"
+                            + request.getUserId() + "/" + test.getId())
                     .build();
             certificationRepository.save(certification);
         }
@@ -103,19 +111,19 @@ public class UserTestResultService {
                 .toList();
     }
 
-    // ── Voir résultats par userSkillId
-    public List<UserTestResultResponse> getByUserSkillId(Long userSkillId) {
-        return userTestResultRepository.findByUserSkillId(userSkillId)
-                .stream().map(r -> toResponse(r,
-                        userAnswerRepository.findByUserTestResultId(r.getId()),
-                        r.getTest().getPassingScore()))
+    // ── Voir certifications par userId
+    public List<CertificationResponse> getCertificationsByUserId(Long userId) {
+        return certificationRepository.findByUserId(userId)
+                .stream().map(c -> CertificationResponse.builder()
+                        .id(c.getId())
+                        .userId(c.getUserId())
+                        .userSkillId(c.getUserSkillId())
+                        .testTitle(c.getTest().getTitle())
+                        .score(c.getScore())
+                        .date(c.getDate())
+                        .certificateUrl(c.getCertificateUrl())
+                        .build())
                 .toList();
-    }
-
-    // ── Générer URL du certificat
-    private String generateCertificateUrl(Long userId, Long testId) {
-        return "https://platform.com/certificates/"
-                + userId + "/" + testId;
     }
 
     // ── Mapper
@@ -125,6 +133,7 @@ public class UserTestResultService {
                 .id(r.getId())
                 .userId(r.getUserId())
                 .testId(r.getTest().getId())
+                .testTitle(r.getTest().getTitle())
                 .userSkillId(r.getUserSkillId())
                 .score(r.getScore())
                 .passingScore(passingScore)
@@ -132,8 +141,8 @@ public class UserTestResultService {
                 .passedAt(r.getPassedAt())
                 .answers(answers.stream().map(a -> UserAnswerResponse.builder()
                         .id(a.getId())
-                        .questionId(a.getQuestion().getId())
-                        .answer(a.getAnswer())
+                        .questionText(a.getQuestion().getQuestionText())
+                        .yourAnswer(a.getAnswer())
                         .isCorrect(a.isCorrect())
                         .build()).toList())
                 .build();
